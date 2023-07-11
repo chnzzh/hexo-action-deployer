@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>UEFI层实现FAT分区写入 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="通过调用UEFI的文件读写接口来实现在UEFI中FAT分区写入">
+<meta property="og:type" content="article">
+<meta property="og:title" content="UEFI层实现FAT分区写入">
+<meta property="og:url" content="http://example.com/2023/04/16/UEFI%E5%B1%82%E5%AE%9E%E7%8E%B0FAT%E5%88%86%E5%8C%BA%E5%86%99%E5%85%A5/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="通过调用UEFI的文件读写接口来实现在UEFI中FAT分区写入">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230416144524.png">
+<meta property="og:image" content="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230416151527.png">
+<meta property="og:image" content="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230416152436.png">
+<meta property="og:image" content="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230416152726.png">
+<meta property="og:image" content="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230416151820.png">
+<meta property="article:published_time" content="2023-04-16T00:00:00.000Z">
+<meta property="article:modified_time" content="2023-07-11T20:01:03.131Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="UEFI">
+<meta property="article:tag" content="文件读写">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230416144524.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS Feed"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="Search"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-UEFI层实现FAT分区写入" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2023/04/16/UEFI%E5%B1%82%E5%AE%9E%E7%8E%B0FAT%E5%88%86%E5%8C%BA%E5%86%99%E5%85%A5/" class="article-date">
+  <time class="dt-published" datetime="2023-04-16T00:00:00.000Z" itemprop="datePublished">2023-04-16</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/UEFI/">UEFI</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      UEFI层实现FAT分区写入
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="0x0-实验对象"><a href="#0x0-实验对象" class="headerlink" title="0x0 实验对象"></a>0x0 实验对象</h2><ul>
+<li>bios1.bin：未修改的原始OVMF镜像</li>
+<li>bios2.bin：修改UIAPP后，重新编译的OVMF镜像</li>
+<li>syshd.iso：使用qemu-img创建的虚拟硬盘<ul>
+<li>容量大小8G</li>
+<li>三个分区 EFI（FAT）+ SWAP + EXT4，GPT分区表</li>
+<li>EXT4分区安装Alpine Linux，用户名root，密码123</li>
+</ul>
+</li>
+</ul>
+<h2 id="0x1-实验思路"><a href="#0x1-实验思路" class="headerlink" title="0x1 实验思路"></a>0x1 实验思路</h2><p>在UIAPP中插入相应代码，尝试在FAT分区中实现文件写入</p>
+<p>代码功能实现：在磁盘的EFI分区下的&#x2F;EFI&#x2F;文件夹中创建一个TestWT.txt文件，并向其中写入指定字符串。</p>
+<h2 id="0x2-实验过程"><a href="#0x2-实验过程" class="headerlink" title="0x2 实验过程"></a>0x2 实验过程</h2><h3 id="0x20-bios1-bin-正常启动"><a href="#0x20-bios1-bin-正常启动" class="headerlink" title="0x20 bios1.bin | 正常启动"></a>0x20 bios1.bin | 正常启动</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">qemu-system-x86_64 -hda syshd.img -bios bios1.bin -m 4096</span><br></pre></td></tr></table></figure>
+
+<p>使用原始bios1.bin作为bios，正常启动进入系统</p>
+<p>观察原始&#x2F;boot下挂载的EFI分区内情况：&#x2F;EFI文件夹存在两个目录</p>
+<p><img src="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230416144524.png" alt="20230416144524"></p>
+<h3 id="0x21-bios2-bin-正常启动"><a href="#0x21-bios2-bin-正常启动" class="headerlink" title="0x21 bios2.bin | 正常启动"></a>0x21 bios2.bin | 正常启动</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">qemu-system-x86_64 -hda syshd.img -bios bios2.bin -m 4096</span><br></pre></td></tr></table></figure>
+
+<p>使用修改后的镜像bios2.bin作为bios，直接进入系统</p>
+<p>观察&#x2F;boot下挂载EFI分区内情况，没有TestWT.txt文件，说明正常启动过程中不会运行UEFI应用程序UIAPP</p>
+<p><img src="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230416151527.png" alt="20230416151527"></p>
+<h3 id="0x22-bios2-bin-从界面启动"><a href="#0x22-bios2-bin-从界面启动" class="headerlink" title="0x22 bios2.bin | 从界面启动"></a>0x22 bios2.bin | 从界面启动</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">qemu-system-x86_64 -hda syshd.img -bios bios2.bin -m 4096</span><br><span class="line">按Esc进入bios</span><br></pre></td></tr></table></figure>
+
+<p>从BIOS UI进入系统，会运行UIAPP</p>
+<p><img src="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230416152436.png" alt="20230416152436"></p>
+<p>选择从硬盘启动，经过grub后进入系统，观察&#x2F;boot下挂载EFI分区内情况，发现插入的代码已经成功执行。</p>
+<p><img src="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230416152726.png" alt="20230416152726"></p>
+<h3 id="0x23-bios2-bin-UEFI-Shell"><a href="#0x23-bios2-bin-UEFI-Shell" class="headerlink" title="0x23 bios2.bin | UEFI Shell"></a>0x23 bios2.bin | UEFI Shell</h3><p>删除&#x2F;boot&#x2F;EFI&#x2F;testWT.txt后，从BIOS UI进入BIOS Shell，也能执行插入代码</p>
+<p><img src="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230416151820.png" alt="20230416151820"></p>
+<h2 id="0x3-实验记录与结论"><a href="#0x3-实验记录与结论" class="headerlink" title="0x3 实验记录与结论"></a>0x3 实验记录与结论</h2><ol>
+<li>在UEFI APP中插入代码，能够实现在UEFI中对FAT分区的读写，并且只有当 UEFI APP被执行时才会运行插入的代码</li>
+<li>尝试在UEFI驱动中（LogoDxe）插入同样的代码，可以通过编译生成镜像，但镜像无法正常启动，可能是驱动执行时无法调用文件操作对应API</li>
+<li>UEFI APP 和UEFI DXE驱动在固件镜像中位于同一位置，并且能够被替换</li>
+</ol>
+<h2 id="0x4-附-插入代码"><a href="#0x4-附-插入代码" class="headerlink" title="0x4 附 插入代码"></a>0x4 附 插入代码</h2><p><code>edk2/MdeModulePkg/Application/UiApp/FrontPage.c</code></p>
+<p>函数入口：InitializeFrontPage</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">////////////////////////////////插入开始////////////////////////////////</span></span><br><span class="line">EFI_SIMPLE_FILE_SYSTEM_PROTOCOL    *Volume;</span><br><span class="line">EFI_FILE_PROTOCOL          *RootDir;</span><br><span class="line">EFI_FILE_PROTOCOL          *FileHandle;</span><br><span class="line">UINTN                 BufferSize;</span><br><span class="line">CHAR8                 *Buffer = <span class="string">&quot;helloimzzh&quot;</span>;</span><br><span class="line">CHAR16 FileName[] = <span class="string">L&quot;\\EFI\\testWT.txt&quot;</span>;</span><br><span class="line"></span><br><span class="line">gBS-&gt;<span class="built_in">LocateProtocol</span>(&amp;gEfiSimpleFileSystemProtocolGuid, <span class="literal">NULL</span>, (VOID **)&amp;Volume);</span><br><span class="line">Volume-&gt;<span class="built_in">OpenVolume</span>(Volume, &amp;RootDir);</span><br><span class="line">RootDir-&gt;<span class="built_in">Open</span>(RootDir, &amp;FileHandle, FileName, EFI_FILE_MODE_READ | EFI_FILE_MODE_WRITE | EFI_FILE_MODE_CREATE, <span class="number">0</span>);</span><br><span class="line">BufferSize = <span class="built_in">AsciiStrLen</span>(Buffer);</span><br><span class="line">FileHandle-&gt;<span class="built_in">Write</span>(FileHandle, &amp;BufferSize, Buffer);</span><br><span class="line">FileHandle-&gt;<span class="built_in">Close</span>(FileHandle);</span><br><span class="line"><span class="comment">////////////////////////////////插入结束////////////////////////////////</span></span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2023/04/16/UEFI%E5%B1%82%E5%AE%9E%E7%8E%B0FAT%E5%88%86%E5%8C%BA%E5%86%99%E5%85%A5/" data-id="cljypwplh0001mcq07otm06r0" data-title="UEFI层实现FAT分区写入" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/UEFI/" rel="tag">UEFI</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%96%87%E4%BB%B6%E8%AF%BB%E5%86%99/" rel="tag">文件读写</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2023/06/08/%E6%8A%80%E5%98%89UEFI%E5%90%8E%E9%97%A8%E6%BC%8F%E6%B4%9E/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          技嘉UEFI BIOS固件中的后门漏洞分析
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2023/04/15/WSL2%E4%BD%BF%E7%94%A8%E5%AE%BF%E4%B8%BB%E6%9C%BA%E4%BB%A3%E7%90%86/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">在WSL2中使用宿主机代理</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Tips/">Tips</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/UEFI/">UEFI</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/">样本分析</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Bootkit/" rel="tag">Bootkit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/FRP/" rel="tag">FRP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Gigabyte/" rel="tag">Gigabyte</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Github-Action/" rel="tag">Github Action</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Github-Page/" rel="tag">Github Page</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tips/" rel="tag">Tips</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UEFI/" rel="tag">UEFI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo/" rel="tag">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9B%BA%E4%BB%B6%E7%97%85%E6%AF%92/" rel="tag">固件病毒</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AE%89%E8%A3%85%E6%95%99%E7%A8%8B/" rel="tag">安装教程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%8A%80%E5%B7%A7/" rel="tag">技巧</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%96%87%E4%BB%B6%E8%AF%BB%E5%86%99/" rel="tag">文件读写</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BC%8F%E6%B4%9E/" rel="tag">漏洞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" rel="tag">计算机网络</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Bootkit/" style="font-size: 10px;">Bootkit</a> <a href="/tags/FRP/" style="font-size: 10px;">FRP</a> <a href="/tags/Gigabyte/" style="font-size: 10px;">Gigabyte</a> <a href="/tags/Github-Action/" style="font-size: 10px;">Github Action</a> <a href="/tags/Github-Page/" style="font-size: 10px;">Github Page</a> <a href="/tags/Tips/" style="font-size: 15px;">Tips</a> <a href="/tags/UEFI/" style="font-size: 20px;">UEFI</a> <a href="/tags/hexo/" style="font-size: 10px;">hexo</a> <a href="/tags/%E5%9B%BA%E4%BB%B6%E7%97%85%E6%AF%92/" style="font-size: 10px;">固件病毒</a> <a href="/tags/%E5%AE%89%E8%A3%85%E6%95%99%E7%A8%8B/" style="font-size: 10px;">安装教程</a> <a href="/tags/%E6%8A%80%E5%B7%A7/" style="font-size: 15px;">技巧</a> <a href="/tags/%E6%96%87%E4%BB%B6%E8%AF%BB%E5%86%99/" style="font-size: 10px;">文件读写</a> <a href="/tags/%E6%BC%8F%E6%B4%9E/" style="font-size: 10px;">漏洞</a> <a href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" style="font-size: 10px;">计算机网络</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/07/">July 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">June 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">April 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">January 2023</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2023/07/11/hexo-action-deploy/">【Action + Page】Github自动搭建并部署hexo博客</a>
+          </li>
+        
+          <li>
+            <a href="/2023/06/19/Lojax/">Lojax Bootkit病毒样本分析</a>
+          </li>
+        
+          <li>
+            <a href="/2023/06/08/%E6%8A%80%E5%98%89UEFI%E5%90%8E%E9%97%A8%E6%BC%8F%E6%B4%9E/">技嘉UEFI BIOS固件中的后门漏洞分析</a>
+          </li>
+        
+          <li>
+            <a href="/2023/04/16/UEFI%E5%B1%82%E5%AE%9E%E7%8E%B0FAT%E5%88%86%E5%8C%BA%E5%86%99%E5%85%A5/">UEFI层实现FAT分区写入</a>
+          </li>
+        
+          <li>
+            <a href="/2023/04/15/WSL2%E4%BD%BF%E7%94%A8%E5%AE%BF%E4%B8%BB%E6%9C%BA%E4%BB%A3%E7%90%86/">在WSL2中使用宿主机代理</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2023 John Doe<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta property="og:type" content="website">
+<meta property="og:title" content="Hexo">
+<meta property="og:url" content="http://example.com/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:locale" content="en_US">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS Feed"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="Search"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main">
+  
+    <article id="post-hexo-action-deploy" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2023/07/11/hexo-action-deploy/" class="article-date">
+  <time class="dt-published" datetime="2023-07-11T17:00:00.000Z" itemprop="datePublished">2023-07-11</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Tips/">Tips</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2023/07/11/hexo-action-deploy/">【Action + Page】Github自动搭建并部署hexo博客</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>借助Github Page提供的免费的网页服务器和Github Action提供的免费的定时任务的脚本运行环境，可以搭建一个属于自己的博客网站。</p>
+<p>在搭建好整个环境后，我们只需要将写好的文章放到指定仓库，即可每日定时自动更新自己的博客网站。</p>
+<h2 id="0x0-创建文章仓库"><a href="#0x0-创建文章仓库" class="headerlink" title="0x0 创建文章仓库"></a>0x0 创建文章仓库</h2><p>仓库名称可以自定义，可以勾选<code>Add a README file</code>，创建一个用于测试的文章。</p>
+<p><img src="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230711164515.png" alt="20230711164515"></p>
+<p>创建完成后仓库中默认包含一个README.md文件，可在之后删除。</p>
+<p>记下创建的仓库地址，如<code>zzhihann/my-note</code></p>
+<blockquote>
+<p>这个仓库仅用于存放写好的文章。</p>
+<p>目录没有统一格式，在这个仓库里的所有markdown格式的文件都会被同步</p>
+<p>如果需要设置为私有仓库，请生成一对rsa密钥，然后在仓库的<code>Setting-&gt;Deploy Key</code>处点击<code>Add deploy key</code>，将公钥复制进去，<code>Title</code>随便填，不要勾选<code>Allow write access</code></p>
+</blockquote>
+<h2 id="0x1-创建主页面仓库"><a href="#0x1-创建主页面仓库" class="headerlink" title="0x1 创建主页面仓库"></a>0x1 创建主页面仓库</h2><h3 id="0x10-Fork仓库"><a href="#0x10-Fork仓库" class="headerlink" title="0x10 Fork仓库"></a>0x10 Fork仓库</h3><p>地址: <a target="_blank" rel="noopener" href="https://github.com/chnzzh/hexo-action-deployer">https://github.com/chnzzh/hexo-action-deployer</a></p>
+<p>修改仓库名为: <code>用户名.github.io</code></p>
+<p><img src="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230711163930.png" alt="20230711163930"></p>
+<h3 id="0x11-新建Secret"><a href="#0x11-新建Secret" class="headerlink" title="0x11 新建Secret"></a>0x11 新建Secret</h3><p><code>Settings-&gt;Secrets and variables-&gt;Actions</code></p>
+<p><img src="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230711164112.png" alt="20230711164112"></p>
+<p>点击<code>New repository secret</code></p>
+<p>创建一个名称为<code>MYNOTES_REPO</code>，内容为文章仓库的地址，如<code>用户名/my-note</code></p>
+<blockquote>
+<p>如果文章仓库为私有仓库，还需要创建一个名称为<code>MYNOTES_PRIVATE_KEY</code>，内容为对应的私钥</p>
+</blockquote>
+<h3 id="0x12-配置Action"><a href="#0x12-配置Action" class="headerlink" title="0x12 配置Action"></a>0x12 配置Action</h3><p><code>Settings-&gt;Actions-&gt;General</code> 给Action分配读写权限：</p>
+<p><img src="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230711170213.png" alt="20230711170213"></p>
+<h3 id="0x13-手动触发Action"><a href="#0x13-手动触发Action" class="headerlink" title="0x13 手动触发Action"></a>0x13 手动触发Action</h3><p><code>Action-&gt;Deploy Hexo site to Pages</code> 点击Enable workflow，然后点击Run</p>
+<p><img src="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230711165309.png" alt="20230711165309"></p>
+<p>等待运行成功</p>
+<h3 id="0x14-设置部署分支"><a href="#0x14-设置部署分支" class="headerlink" title="0x14 设置部署分支"></a>0x14 设置部署分支</h3><p><code>Settings-&gt;Pages</code> 设置分支为gh-pages：</p>
+<p><img src="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230711170417.png" alt="20230711170417"></p>
+<h3 id="0x15-测试网站"><a href="#0x15-测试网站" class="headerlink" title="0x15 测试网站"></a>0x15 测试网站</h3><p>访问<code>用户名.github.io</code>，即可看到部署成功的页面！</p>
+<h2 id="0x2-配置"><a href="#0x2-配置" class="headerlink" title="0x2 配置"></a>0x2 配置</h2><h3 id="0x20-配置Github-Action更新方式"><a href="#0x20-配置Github-Action更新方式" class="headerlink" title="0x20 配置Github Action更新方式"></a>0x20 配置Github Action更新方式</h3><p>默认更新方式是通过push代码和定时（每日UTC时间20点）更新。如果需要改变更新时间或方式，请直接修改<code>.github/workflows/hexo.yml</code>文件</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">on:</span></span><br><span class="line">  <span class="comment"># 当main分支触发push时</span></span><br><span class="line">  <span class="attr">push:</span></span><br><span class="line">    <span class="attr">branches:</span> [ <span class="string">&quot;main&quot;</span> ]</span><br><span class="line">  <span class="comment"># 定时器，每日UTC时间20时更新</span></span><br><span class="line">  <span class="attr">schedule:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">cron:</span> <span class="string">&quot;0 20 * * *&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="0x21-更换主题"><a href="#0x21-更换主题" class="headerlink" title="0x21 更换主题"></a>0x21 更换主题</h3><h4 id="方式1：将主题添加为子模块（推荐）"><a href="#方式1：将主题添加为子模块（推荐）" class="headerlink" title="方式1：将主题添加为子模块（推荐）"></a>方式1：将主题添加为子模块（推荐）</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git submodule add -b master https://github.com/jerryc127/hexo-theme-butterfly.git themes/butterfly</span><br></pre></td></tr></table></figure>
+
+<h4 id="方式2：直接放在theme文件夹下"><a href="#方式2：直接放在theme文件夹下" class="headerlink" title="方式2：直接放在theme文件夹下"></a>方式2：直接放在theme文件夹下</h4><p>将主题文件夹放在theme文件夹下</p>
+<h4 id="方式3：通过npm包安装"><a href="#方式3：通过npm包安装" class="headerlink" title="方式3：通过npm包安装"></a>方式3：通过npm包安装</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install hexo-theme-butterfly</span><br></pre></td></tr></table></figure>
+
+<h4 id="放置主题配置文件"><a href="#放置主题配置文件" class="headerlink" title="放置主题配置文件"></a>放置主题配置文件</h4><ol>
+<li><p>修改根目录下的<code>_config.yml</code>中的theme为对应主题名</p>
+</li>
+<li><p>将主题文件夹中的配置文件复制到根目录并重命名为<code>_config.主题名.yml</code>（如_config.butterfly.yml）</p>
+</li>
+</ol>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2023/07/11/hexo-action-deploy/" data-id="cljypwplo0006mcq06jhv78es" data-title="【Action + Page】Github自动搭建并部署hexo博客" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Github-Action/" rel="tag">Github Action</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Github-Page/" rel="tag">Github Page</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Tips/" rel="tag">Tips</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hexo/" rel="tag">hexo</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%8A%80%E5%B7%A7/" rel="tag">技巧</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-Lojax" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2023/06/19/Lojax/" class="article-date">
+  <time class="dt-published" datetime="2023-06-19T20:06:53.000Z" itemprop="datePublished">2023-06-19</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/">样本分析</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2023/06/19/Lojax/">Lojax Bootkit病毒样本分析</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="0x0-分类"><a href="#0x0-分类" class="headerlink" title="0x0 分类"></a>0x0 分类</h2><ul>
+<li>UEFI阶段：DXE</li>
+<li>感染方式：Win-&gt;UEFI-&gt;Win<ol>
+<li>通过windows端工具RWEverything获取UEFI bios固件</li>
+<li>执行固件植入，植入模块SecDxe，SecDxe携带ntfs驱动，且携带2个win端执行的payload。首先加载携带的ntfs驱动，然后向磁盘释放两个payload可执行文件</li>
+<li>刷回bios固件</li>
+</ol>
+</li>
+</ul>
+<h2 id="0x1-逆向分析"><a href="#0x1-逆向分析" class="headerlink" title="0x1 逆向分析"></a>0x1 逆向分析</h2><p>binwalk扫描SecDxe，包含4个PE头，第二个是ntfs驱动(efi可执行文件)，第三个和第四个是释放到磁盘的文件</p>
+<p><img src="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230619203802.png" alt="20230619203802"></p>
+<p>sub_6F8：实现ntfs驱动加载，所在指针<code>&amp;off_2060</code>，长度<code>299840</code>，该PE文件为efi NTFS驱动，识别类型为MS-DOS executable PE32+ executable (DLL) (EFI boot service driver) x86-64, for MS Windows</p>
+<p><img src="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230619202001.png" alt="20230619202001"></p>
+<p>sub_8A8：实现文件释放，释放数组指针<code>unk_4B3E0</code>，长度<code>3072</code>，名称<code>autoche.exe</code></p>
+<p><img src="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230619205235.png" alt="20230619205235"></p>
+<p>sub_8A8：实现文件释放，释放数组指针<code>off_4BFE0</code>，长度<code>17408</code>，名称<code>rpcnetp.exe</code></p>
+<p><img src="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230619210520.png" alt="20230619210520"></p>
+<h2 id="0x2-样本结构"><a href="#0x2-样本结构" class="headerlink" title="0x2 样本结构"></a>0x2 样本结构</h2><p>SecDxe.efi:</p>
+<ul>
+<li>PE1: NTFS驱动</li>
+<li>PE2: autoche.exe</li>
+<li>PE3: rpcnetp.exe</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2023/06/19/Lojax/" data-id="cljypwpla0000mcq0264yh8ep" data-title="Lojax Bootkit病毒样本分析" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Bootkit/" rel="tag">Bootkit</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/UEFI/" rel="tag">UEFI</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%9B%BA%E4%BB%B6%E7%97%85%E6%AF%92/" rel="tag">固件病毒</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-技嘉UEFI后门漏洞" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2023/06/08/%E6%8A%80%E5%98%89UEFI%E5%90%8E%E9%97%A8%E6%BC%8F%E6%B4%9E/" class="article-date">
+  <time class="dt-published" datetime="2023-06-08T14:43:00.000Z" itemprop="datePublished">2023-06-08</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/">样本分析</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2023/06/08/%E6%8A%80%E5%98%89UEFI%E5%90%8E%E9%97%A8%E6%BC%8F%E6%B4%9E/">技嘉UEFI BIOS固件中的后门漏洞分析</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="相关链接"><a href="#相关链接" class="headerlink" title="相关链接"></a>相关链接</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://eclypsium.com/blog/supply-chain-risk-from-gigabyte-app-center-backdoor/">eclypsium官方报告</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.gigabyte.com/Press/News/2091">技嘉官方安全公告</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.gigabyte.com/Press/News/2091">eclypsium提供的受影响型号</a></li>
+</ul>
+<h2 id="受影响型号"><a href="#受影响型号" class="headerlink" title="受影响型号"></a>受影响型号</h2><p>第一批修复</p>
+<p>Intel 700&#x2F;600<br>AMD 500&#x2F;400</p>
+<p>第二批修复<br>Intel 500&#x2F;400<br>AMD 600</p>
+<h2 id="样本比对"><a href="#样本比对" class="headerlink" title="样本比对"></a>样本比对</h2><p>z790 未上传</p>
+<p><img src="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230606224909.png" alt="20230606224909"></p>
+<p>b760  已上传</p>
+<p><img src="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230606225056.png" alt="20230606225056"></p>
+<p>选取b760的两个版本固件作为分析对象，标记为F1和F2</p>
+<p>根据eclypsium提供的信息，获得UEFI固件中相关可执行程序：<br>GUID：AEB1671D-019C-4B3B-BA-00-35-A2-E6-28-04-36<br>提取出一个二进制efi文件，标记为</p>
+<p>F1_Section_PE32_image_AEB1671D-019C-4B3B-BA00-35A2E6280436_body.efi<br>F2_Section_PE32_image_AEB1671D-019C-4B3B-BA00-35A2E6280436_body.efi</p>
+<h3 id="EFI文件分析"><a href="#EFI文件分析" class="headerlink" title="EFI文件分析"></a>EFI文件分析</h3><p>先使用NtCreateFile函数尝试创建一个文件，第三个参数ObjectAttributes指明了位置：</p>
+<p>使用ida pro比对两个版本之间差异，发现只存在一处不同：</p>
+<p><img src="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230606232531.png" alt="20230606232531"></p>
+<p>该函数是一个写文件的函数，不同位置为写入缓冲区的大小（以字节为单位）。</p>
+<p>F1：<br>数据长度：0x1208F8u</p>
+<p>F2<br>数据长度：0x120AF8u, 1182456</p>
+<p>找到对应写入文件的指针，提取出该文件，标记为</p>
+<p>F1_payload.bin<br>F2_payload.bin</p>
+<h3 id="Payload沙盒测试"><a href="#Payload沙盒测试" class="headerlink" title="Payload沙盒测试"></a>Payload沙盒测试</h3><p>运行释放的可执行文件F1_payload</p>
+<p><img src="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230607142040.png" alt="20230607142040"></p>
+<p>服务管理器中出现GigabyteUpdateService</p>
+<p><img src="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230607142152.png" alt="20230607142152"></p>
+<h3 id="Payload静态分析"><a href="#Payload静态分析" class="headerlink" title="Payload静态分析"></a>Payload静态分析</h3><p>使用bindiff比对F1_payload.bin、F2_payload.bin，并未发现不同</p>
+<p>使用binwalk在文件中查询PE头，发现在payload.exe中还存在第二个PE可执行文件，提取出该文件，标记为</p>
+<p>F1_MZ2.bin<br>F2_MZ2.bin</p>
+<h3 id="第二个PE文件分析"><a href="#第二个PE文件分析" class="headerlink" title="第二个PE文件分析"></a>第二个PE文件分析</h3><p>该文件是一个.NET编写的程序</p>
+<h4 id="Bindiff"><a href="#Bindiff" class="headerlink" title="Bindiff"></a>Bindiff</h4><p><img src="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230607180316.png" alt="20230607180316"></p>
+<h4 id="反编译分析"><a href="#反编译分析" class="headerlink" title="反编译分析"></a>反编译分析</h4><p>反编译工具：dotPeek</p>
+<h5 id="AppLiveUpdateWebPath"><a href="#AppLiveUpdateWebPath" class="headerlink" title="AppLiveUpdateWebPath"></a>AppLiveUpdateWebPath</h5><p>\Utilities\AppLiveUpdate\AppLiveUpdateWebPath.cs</p>
+<p><img src="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230607175009.png" alt="20230607175009"></p>
+<p>删除了更新源Software-nas&#x2F;Swhttp&#x2F;LiveUpdate4，保留 mb.download.gigabyte.com&#x2F;FileList&#x2F;Swhttp&#x2F;LiveUpdate4</p>
+<h5 id="UtilityUserControlsDownloadAndInstallBox"><a href="#UtilityUserControlsDownloadAndInstallBox" class="headerlink" title="UtilityUserControlsDownloadAndInstallBox"></a>UtilityUserControlsDownloadAndInstallBox</h5><p>\UtilityUserControlsDownloadAndInstallBox.xaml.cs</p>
+<p><img src="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230607175541.png" alt="20230607175541"></p>
+<p>添加了安全校验库，之前可能未作安全校验</p>
+<p><img src="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230608144219.png" alt="20230608144219"></p>
+<p>增加了安装前验证，未通过则抛出异常</p>
+<h4 id="URL说明"><a href="#URL说明" class="headerlink" title="URL说明"></a>URL说明</h4><p>url格式为 <code>&#123;0&#125;://&#123;1&#125;/&#123;2&#125;/&#123;3&#125;</code>，如:<br><a target="_blank" rel="noopener" href="https://mb.download.gigabyte.com/FileList/Swhttp/LiveUpdate4/AppCenter/verInfo.ini">https://mb.download.gigabyte.com/FileList/Swhttp/LiveUpdate4/AppCenter/verInfo.ini</a></p>
+<ul>
+<li>{0}：<ul>
+<li>http</li>
+<li>https，默认状态下设置为https</li>
+</ul>
+</li>
+<li>{1}: ToUrl:<ul>
+<li>mb.download.gigabyte.com&#x2F;FileList&#x2F;Swhttp&#x2F;LiveUpdate4</li>
+<li>Software-nas&#x2F;Swhttp&#x2F;LiveUpdate4</li>
+</ul>
+</li>
+<li>{2}: folderName：<ul>
+<li>AppCenter</li>
+<li>webappcenter</li>
+<li>GCC</li>
+</ul>
+</li>
+<li>{3}: 文件名称<ul>
+<li>UpdPack.exe</li>
+<li>verInfo.ini</li>
+<li>setup.exe</li>
+<li>setup.iss</li>
+</ul>
+</li>
+</ul>
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>可以确定，未修复的版本中存在两个弱点：</p>
+<ol>
+<li>InternalUrl(Software-nas&#x2F;Swhttp&#x2F;LiveUpdate4)：实际情况下无法发起攻击</li>
+<li>下载文件未作校验：可被中间人攻击并释放可执行文件</li>
+</ol>
+<p>厂商借助WPBT功能，从固件层面向用户的操作系统内释放网络下载器，具有潜在的安全风险。<br>如果不能保证下载来源的可靠性，或者通过中间人替换下载来源，则很容易造成漏洞利用。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2023/06/08/%E6%8A%80%E5%98%89UEFI%E5%90%8E%E9%97%A8%E6%BC%8F%E6%B4%9E/" data-id="cljypwplr000amcq0e374hzm5" data-title="技嘉UEFI BIOS固件中的后门漏洞分析" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Gigabyte/" rel="tag">Gigabyte</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/UEFI/" rel="tag">UEFI</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%BC%8F%E6%B4%9E/" rel="tag">漏洞</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-UEFI层实现FAT分区写入" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2023/04/16/UEFI%E5%B1%82%E5%AE%9E%E7%8E%B0FAT%E5%88%86%E5%8C%BA%E5%86%99%E5%85%A5/" class="article-date">
+  <time class="dt-published" datetime="2023-04-16T00:00:00.000Z" itemprop="datePublished">2023-04-16</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/UEFI/">UEFI</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2023/04/16/UEFI%E5%B1%82%E5%AE%9E%E7%8E%B0FAT%E5%88%86%E5%8C%BA%E5%86%99%E5%85%A5/">UEFI层实现FAT分区写入</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="0x0-实验对象"><a href="#0x0-实验对象" class="headerlink" title="0x0 实验对象"></a>0x0 实验对象</h2><ul>
+<li>bios1.bin：未修改的原始OVMF镜像</li>
+<li>bios2.bin：修改UIAPP后，重新编译的OVMF镜像</li>
+<li>syshd.iso：使用qemu-img创建的虚拟硬盘<ul>
+<li>容量大小8G</li>
+<li>三个分区 EFI（FAT）+ SWAP + EXT4，GPT分区表</li>
+<li>EXT4分区安装Alpine Linux，用户名root，密码123</li>
+</ul>
+</li>
+</ul>
+<h2 id="0x1-实验思路"><a href="#0x1-实验思路" class="headerlink" title="0x1 实验思路"></a>0x1 实验思路</h2><p>在UIAPP中插入相应代码，尝试在FAT分区中实现文件写入</p>
+<p>代码功能实现：在磁盘的EFI分区下的&#x2F;EFI&#x2F;文件夹中创建一个TestWT.txt文件，并向其中写入指定字符串。</p>
+<h2 id="0x2-实验过程"><a href="#0x2-实验过程" class="headerlink" title="0x2 实验过程"></a>0x2 实验过程</h2><h3 id="0x20-bios1-bin-正常启动"><a href="#0x20-bios1-bin-正常启动" class="headerlink" title="0x20 bios1.bin | 正常启动"></a>0x20 bios1.bin | 正常启动</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">qemu-system-x86_64 -hda syshd.img -bios bios1.bin -m 4096</span><br></pre></td></tr></table></figure>
+
+<p>使用原始bios1.bin作为bios，正常启动进入系统</p>
+<p>观察原始&#x2F;boot下挂载的EFI分区内情况：&#x2F;EFI文件夹存在两个目录</p>
+<p><img src="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230416144524.png" alt="20230416144524"></p>
+<h3 id="0x21-bios2-bin-正常启动"><a href="#0x21-bios2-bin-正常启动" class="headerlink" title="0x21 bios2.bin | 正常启动"></a>0x21 bios2.bin | 正常启动</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">qemu-system-x86_64 -hda syshd.img -bios bios2.bin -m 4096</span><br></pre></td></tr></table></figure>
+
+<p>使用修改后的镜像bios2.bin作为bios，直接进入系统</p>
+<p>观察&#x2F;boot下挂载EFI分区内情况，没有TestWT.txt文件，说明正常启动过程中不会运行UEFI应用程序UIAPP</p>
+<p><img src="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230416151527.png" alt="20230416151527"></p>
+<h3 id="0x22-bios2-bin-从界面启动"><a href="#0x22-bios2-bin-从界面启动" class="headerlink" title="0x22 bios2.bin | 从界面启动"></a>0x22 bios2.bin | 从界面启动</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">qemu-system-x86_64 -hda syshd.img -bios bios2.bin -m 4096</span><br><span class="line">按Esc进入bios</span><br></pre></td></tr></table></figure>
+
+<p>从BIOS UI进入系统，会运行UIAPP</p>
+<p><img src="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230416152436.png" alt="20230416152436"></p>
+<p>选择从硬盘启动，经过grub后进入系统，观察&#x2F;boot下挂载EFI分区内情况，发现插入的代码已经成功执行。</p>
+<p><img src="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230416152726.png" alt="20230416152726"></p>
+<h3 id="0x23-bios2-bin-UEFI-Shell"><a href="#0x23-bios2-bin-UEFI-Shell" class="headerlink" title="0x23 bios2.bin | UEFI Shell"></a>0x23 bios2.bin | UEFI Shell</h3><p>删除&#x2F;boot&#x2F;EFI&#x2F;testWT.txt后，从BIOS UI进入BIOS Shell，也能执行插入代码</p>
+<p><img src="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230416151820.png" alt="20230416151820"></p>
+<h2 id="0x3-实验记录与结论"><a href="#0x3-实验记录与结论" class="headerlink" title="0x3 实验记录与结论"></a>0x3 实验记录与结论</h2><ol>
+<li>在UEFI APP中插入代码，能够实现在UEFI中对FAT分区的读写，并且只有当 UEFI APP被执行时才会运行插入的代码</li>
+<li>尝试在UEFI驱动中（LogoDxe）插入同样的代码，可以通过编译生成镜像，但镜像无法正常启动，可能是驱动执行时无法调用文件操作对应API</li>
+<li>UEFI APP 和UEFI DXE驱动在固件镜像中位于同一位置，并且能够被替换</li>
+</ol>
+<h2 id="0x4-附-插入代码"><a href="#0x4-附-插入代码" class="headerlink" title="0x4 附 插入代码"></a>0x4 附 插入代码</h2><p><code>edk2/MdeModulePkg/Application/UiApp/FrontPage.c</code></p>
+<p>函数入口：InitializeFrontPage</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">////////////////////////////////插入开始////////////////////////////////</span></span><br><span class="line">EFI_SIMPLE_FILE_SYSTEM_PROTOCOL    *Volume;</span><br><span class="line">EFI_FILE_PROTOCOL          *RootDir;</span><br><span class="line">EFI_FILE_PROTOCOL          *FileHandle;</span><br><span class="line">UINTN                 BufferSize;</span><br><span class="line">CHAR8                 *Buffer = <span class="string">&quot;helloimzzh&quot;</span>;</span><br><span class="line">CHAR16 FileName[] = <span class="string">L&quot;\\EFI\\testWT.txt&quot;</span>;</span><br><span class="line"></span><br><span class="line">gBS-&gt;<span class="built_in">LocateProtocol</span>(&amp;gEfiSimpleFileSystemProtocolGuid, <span class="literal">NULL</span>, (VOID **)&amp;Volume);</span><br><span class="line">Volume-&gt;<span class="built_in">OpenVolume</span>(Volume, &amp;RootDir);</span><br><span class="line">RootDir-&gt;<span class="built_in">Open</span>(RootDir, &amp;FileHandle, FileName, EFI_FILE_MODE_READ | EFI_FILE_MODE_WRITE | EFI_FILE_MODE_CREATE, <span class="number">0</span>);</span><br><span class="line">BufferSize = <span class="built_in">AsciiStrLen</span>(Buffer);</span><br><span class="line">FileHandle-&gt;<span class="built_in">Write</span>(FileHandle, &amp;BufferSize, Buffer);</span><br><span class="line">FileHandle-&gt;<span class="built_in">Close</span>(FileHandle);</span><br><span class="line"><span class="comment">////////////////////////////////插入结束////////////////////////////////</span></span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2023/04/16/UEFI%E5%B1%82%E5%AE%9E%E7%8E%B0FAT%E5%88%86%E5%8C%BA%E5%86%99%E5%85%A5/" data-id="cljypwplh0001mcq07otm06r0" data-title="UEFI层实现FAT分区写入" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/UEFI/" rel="tag">UEFI</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%96%87%E4%BB%B6%E8%AF%BB%E5%86%99/" rel="tag">文件读写</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-WSL2使用宿主机代理" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2023/04/15/WSL2%E4%BD%BF%E7%94%A8%E5%AE%BF%E4%B8%BB%E6%9C%BA%E4%BB%A3%E7%90%86/" class="article-date">
+  <time class="dt-published" datetime="2023-04-15T00:00:00.000Z" itemprop="datePublished">2023-04-15</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Tips/">Tips</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2023/04/15/WSL2%E4%BD%BF%E7%94%A8%E5%AE%BF%E4%B8%BB%E6%9C%BA%E4%BB%A3%E7%90%86/">在WSL2中使用宿主机代理</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="0x0-WSL2终端"><a href="#0x0-WSL2终端" class="headerlink" title="0x0 WSL2终端"></a>0x0 WSL2终端</h2><p>在WSL2终端中运行以下命令，代理的端口为7890，并且在宿主机代理中开启LAN</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">wsl_addr=`<span class="built_in">cat</span> /etc/resolv.conf|grep nameserver|awk <span class="string">&#x27;&#123;print $2&#125;&#x27;</span>`</span><br><span class="line">proxy_port=7890  <span class="comment"># 根据实际IP和端口修改地址</span></span><br><span class="line"><span class="built_in">export</span> http_proxy=<span class="string">&quot;http://<span class="variable">$&#123;wsl_addr&#125;</span>:<span class="variable">$&#123;proxy_port&#125;</span>&quot;</span></span><br><span class="line"><span class="built_in">export</span> https_proxy=<span class="string">&quot;http://<span class="variable">$&#123;wsl_addr&#125;</span>:<span class="variable">$&#123;proxy_port&#125;</span>&quot;</span></span><br><span class="line"><span class="built_in">export</span> ftp_proxy=<span class="string">&quot;http://<span class="variable">$&#123;wsl_addr&#125;</span>:<span class="variable">$&#123;proxy_port&#125;</span>&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>如果需要持续代理，将以上脚本命令复制到用户目录的.bashrc文件即可。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2023/04/15/WSL2%E4%BD%BF%E7%94%A8%E5%AE%BF%E4%B8%BB%E6%9C%BA%E4%BB%A3%E7%90%86/" data-id="cljypwpll0004mcq09gwxdpr4" data-title="在WSL2中使用宿主机代理" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Tips/" rel="tag">Tips</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%8A%80%E5%B7%A7/" rel="tag">技巧</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-edk2_install" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2023/04/12/edk2_install/" class="article-date">
+  <time class="dt-published" datetime="2023-04-12T17:37:29.000Z" itemprop="datePublished">2023-04-12</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/UEFI/">UEFI</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2023/04/12/edk2_install/">EDK2开发环境安装</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="0x0-Preparation"><a href="#0x0-Preparation" class="headerlink" title="0x0 Preparation"></a>0x0 Preparation</h2><ul>
+<li>操作系统：Windows11 22H2</li>
+<li>处理器：AMD Ryzen 7 6800H with Radeon Graphics </li>
+<li>虚拟机环境：WSL2 (Ubuntu 2204 LTS)</li>
+</ul>
+<h2 id="0x1-安装"><a href="#0x1-安装" class="headerlink" title="0x1 安装"></a>0x1 安装</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install build-essential uuid-dev iasl git nasm python-is-python3</span><br><span class="line"></span><br><span class="line"><span class="comment"># 拉取edk2</span></span><br><span class="line">git <span class="built_in">clone</span> https://github.com/tianocore/edk2.git -b edk2-stable202302</span><br><span class="line"><span class="built_in">cd</span> edk2</span><br><span class="line">git submodule update --init --recursive</span><br><span class="line"></span><br><span class="line"><span class="comment"># 编译BaseTools</span></span><br><span class="line">make -C BaseTools</span><br><span class="line"></span><br><span class="line"><span class="comment"># 当前终端中运行setup脚本</span></span><br><span class="line">. edksetup.sh</span><br><span class="line"></span><br><span class="line"><span class="comment"># 修改target文件</span></span><br><span class="line">vim Conf/target.txt</span><br><span class="line"><span class="comment"># 修改以下三项</span></span><br><span class="line">ACTIVE_PLATFORM       = OvmfPkg/OvmfPkgX64.dsc</span><br><span class="line">TARGET_ARCH           = X64</span><br><span class="line">TOOL_CHAIN_TAG        = GCC5</span><br><span class="line"></span><br><span class="line"><span class="comment"># 编译</span></span><br><span class="line">build</span><br></pre></td></tr></table></figure>
+
+<p>如果编译失败，<a href="#0xf0-build%E5%87%BA%E9%94%99">请检查nasm版本</a></p>
+<p>编译成功的话会显示如下：</p>
+<p><img src="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230414141047.png" alt="编译成功"></p>
+<h2 id="0x2-测试OVMF"><a href="#0x2-测试OVMF" class="headerlink" title="0x2 测试OVMF"></a>0x2 测试OVMF</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">qemu-system-x86_64 -bios Build/OvmfX64/DEBUG_GCC5/FV/OVMF.fd</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230414140551.png" alt="20230414140551"><br><img src="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230414140618.png" alt="20230414140618"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> ovmf_run &amp;&amp; <span class="built_in">cd</span> ovmf_run</span><br><span class="line"><span class="built_in">cp</span> ../edk2/Build/OvmfX64/DEBUG_GCC5/FV/OVMF.fd bios.bin</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="0xF-相关报错解决"><a href="#0xF-相关报错解决" class="headerlink" title="0xF 相关报错解决"></a>0xF 相关报错解决</h2><h3 id="0xF0-build出错"><a href="#0xF0-build出错" class="headerlink" title="0xF0 build出错"></a>0xF0 build出错</h3><p>如果apt安装的nasm版本小于2.15.05，需要卸载并重新安装，因为OVMF需求版本为大于等于2.15.05，否则编译会出错</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">wget https://www.nasm.us/pub/nasm/releasebuilds/2.15.05/nasm-2.15.05.tar.gz</span><br><span class="line">tar -xvzf nasm-2.15.05.tar.gz</span><br><span class="line"><span class="built_in">cd</span> nasm-2.15.05/</span><br><span class="line">./configure --prefix=/usr</span><br><span class="line">make</span><br><span class="line">sudo apt remove nasm</span><br><span class="line">sudo make install</span><br></pre></td></tr></table></figure>
+
+<h3 id="0xF1-Guest-has-not-initialized-the-display-yet-长时间不消失"><a href="#0xF1-Guest-has-not-initialized-the-display-yet-长时间不消失" class="headerlink" title="0xF1 Guest has not initialized the display (yet)长时间不消失"></a>0xF1 Guest has not initialized the display (yet)长时间不消失</h3><p><img src="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230413201707.png" alt="20230413201707"></p>
+<p>请卸载并重新通过编译来安装qemu</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">sudo apt remove qemu*</span><br><span class="line"></span><br><span class="line">wget https://download.qemu.org/qemu-8.0.0-rc4.tar.xz</span><br><span class="line">tar -xvf qemu-8.0.0-rc4.tar.xz</span><br><span class="line"><span class="built_in">cd</span> qemu-8.0.0-rc4/</span><br><span class="line"><span class="built_in">mkdir</span> build &amp;&amp; <span class="built_in">cd</span> build</span><br><span class="line"><span class="built_in">cd</span> build</span><br><span class="line">sudo apt-get install ninja-build pkg-config libglib2.0-dev libpixman-1-dev bison flex libsdl2-dev</span><br><span class="line">../configure</span><br><span class="line">make -j16</span><br><span class="line">sudo make install</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2023/04/12/edk2_install/" data-id="cljypwpln0005mcq0bah841ws" data-title="EDK2开发环境安装" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/UEFI/" rel="tag">UEFI</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AE%89%E8%A3%85%E6%95%99%E7%A8%8B/" rel="tag">安装教程</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-内网穿透" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2023/01/08/%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F/" class="article-date">
+  <time class="dt-published" datetime="2023-01-08T00:00:00.000Z" itemprop="datePublished">2023-01-08</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Tips/">Tips</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2023/01/08/%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F/">通过内网穿透配置远程开发环境</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="0x0-背景"><a href="#0x0-背景" class="headerlink" title="0x0 背景"></a>0x0 背景</h2><p>人在外网，想要使用的主机在内网，而学校提供的VPN是网页端，及其不好用。</p>
+<p>使用远程桌面软件会有收费问题且不能保证安全。</p>
+<p>解决方案就是用frp搭建一个穿透服务器，通过内网穿透进行访问。</p>
+<p>成本是一个公网服务器，只用来做穿透的话最低档的学生服务器就可以。</p>
+<h2 id="0x1-环境"><a href="#0x1-环境" class="headerlink" title="0x1 环境"></a>0x1 环境</h2><ul>
+<li>A：内网中的机器</li>
+<li>B：公网上的云服务器</li>
+<li>C：自己手边的主机</li>
+</ul>
+<h2 id="0x2-配置工作"><a href="#0x2-配置工作" class="headerlink" title="0x2 配置工作"></a>0x2 配置工作</h2><p>需要在A机器和B服务器上进行配置</p>
+<h3 id="0x20-A内网机器"><a href="#0x20-A内网机器" class="headerlink" title="0x20 A内网机器"></a>0x20 A内网机器</h3><h4 id="下载frp"><a href="#下载frp" class="headerlink" title="下载frp"></a>下载frp</h4><p>下载并解压<code>frp</code>（以linux x86为例），这里使用0.46.0版本作为演示。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget https://github.com/fatedier/frp/releases/download/v0.46.0/frp_0.46.0_linux_amd64.tar.gz</span><br><span class="line">tar -xvzf frp_0.46.0_linux_amd64.tar.gz</span><br></pre></td></tr></table></figure>
+
+<p>移动到local文件夹下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo <span class="built_in">mv</span> frp_0.46.0_linux_amd64 /usr/local/frp</span><br><span class="line"><span class="built_in">cd</span> /usr/local/frp</span><br></pre></td></tr></table></figure>
+
+<h4 id="修改配置文件"><a href="#修改配置文件" class="headerlink" title="修改配置文件"></a>修改配置文件</h4><p>编辑器打开<code>frpc.ini</code>配置内网机器</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo vim frpc.ini</span><br></pre></td></tr></table></figure>
+
+<p>必须修改项：<br>server_addr：为公网机器B的IP地址</p>
+<p>可选修改项：<br>server_port为公网机器B用来连接A的开放端口<br>remote_port为用户C用来连接A时的端口</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">[common]</span><br><span class="line">server_addr = x.x.x.x</span><br><span class="line">server_port = 7000</span><br><span class="line"></span><br><span class="line">[ssh]</span><br><span class="line"><span class="built_in">type</span> = tcp</span><br><span class="line">local_ip = 127.0.0.1</span><br><span class="line">local_port = 22</span><br><span class="line">remote_port = 6000</span><br></pre></td></tr></table></figure>
+
+<h4 id="注册服务"><a href="#注册服务" class="headerlink" title="注册服务"></a>注册服务</h4><p>注册为系统服务，这样就不用每次都手动运行了。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo vim /usr/lib/systemd/system/frps.service</span><br></pre></td></tr></table></figure>
+
+<p>粘贴下面内容</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">[Unit]</span><br><span class="line">Description=frp cilent</span><br><span class="line">After=network.target</span><br><span class="line"></span><br><span class="line">[Service]</span><br><span class="line">Type=simple</span><br><span class="line">ExecStart=/usr/local/frp/frpc -c /usr/local/frp/frpc.ini</span><br><span class="line">ExecReload=/bin/kill -s HUP <span class="variable">$MAINPID</span></span><br><span class="line">ExecStop=/bin/kill -s QUIT <span class="variable">$MAINPID</span></span><br><span class="line"></span><br><span class="line">[Install]</span><br><span class="line">WantedBy=multi-user.target</span><br></pre></td></tr></table></figure>
+
+<h4 id="启动服务"><a href="#启动服务" class="headerlink" title="启动服务"></a>启动服务</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo systemctl <span class="built_in">enable</span> frpc</span><br><span class="line">sudo systemctl start frpc</span><br><span class="line">sudo systemctl status frpc</span><br></pre></td></tr></table></figure>
+
+<p>正常的话，应该会是active状态，即为配置成功</p>
+<h3 id="0x21-B公网服务器"><a href="#0x21-B公网服务器" class="headerlink" title="0x21 B公网服务器"></a>0x21 B公网服务器</h3><h4 id="下载frp-1"><a href="#下载frp-1" class="headerlink" title="下载frp"></a>下载frp</h4><p>前面步骤和A一样</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">wget https://github.com/fatedier/frp/releases/download/v0.46.0/frp_0.46.0_linux_amd64.tar.gz</span><br><span class="line">tar -xvzf frp_0.46.0_linux_amd64.tar.gz</span><br><span class="line">sudo <span class="built_in">mv</span> frp_0.46.0_linux_amd64 /usr/local/frp</span><br><span class="line"><span class="built_in">cd</span> /usr/local/frp</span><br></pre></td></tr></table></figure>
+
+<h4 id="修改配置文件（可跳过）"><a href="#修改配置文件（可跳过）" class="headerlink" title="修改配置文件（可跳过）"></a>修改配置文件（可跳过）</h4><p>编辑器打开<code>frps.ini</code>配置frp服务器</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo vim frps.ini</span><br></pre></td></tr></table></figure>
+
+<p>可选修改项：<br>bind_port为公网机器B用来连接A的开放端口，和之前配置的server_port一致</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[common]</span><br><span class="line">bind_port = 7000</span><br></pre></td></tr></table></figure>
+
+<h4 id="注册服务-1"><a href="#注册服务-1" class="headerlink" title="注册服务"></a>注册服务</h4><p>注册为系统服务，这样就不用每次都手动运行了</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo vim /usr/lib/systemd/system/frps.service</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">[Unit]</span><br><span class="line">Description=frp server</span><br><span class="line">After=network.target</span><br><span class="line"></span><br><span class="line">[Service]</span><br><span class="line">Type=simple</span><br><span class="line"></span><br><span class="line">ExecStart=/usr/local/frp/frps -c /usr/local/frp/frps.ini</span><br><span class="line">ExecReload=/bin/kill -s HUP <span class="variable">$MAINPID</span></span><br><span class="line">ExecStop=/bin/kill -s QUIT <span class="variable">$MAINPID</span></span><br><span class="line"></span><br><span class="line">[Install]</span><br><span class="line">WantedBy=multi-user.target</span><br></pre></td></tr></table></figure>
+
+<h4 id="启动服务-1"><a href="#启动服务-1" class="headerlink" title="启动服务"></a>启动服务</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo systemctl <span class="built_in">enable</span> frps</span><br><span class="line">sudo systemctl start frps</span><br><span class="line">sudo systemctl status frps</span><br></pre></td></tr></table></figure>
+
+<p>正常的话，应该是active状态。</p>
+<h4 id="开启防火墙"><a href="#开启防火墙" class="headerlink" title="开启防火墙"></a>开启防火墙</h4><p>在云服务器的防火墙规则里开放之前配置的remote_port和bind_port端口，默认是6000和7000。</p>
+<h2 id="0x3-连接"><a href="#0x3-连接" class="headerlink" title="0x3 连接"></a>0x3 连接</h2><p>在主机C上使用ssh连接A，<br>user为A的用户名，ip地址为B的公网ip，-p后为frpc中的remote_port</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh user@x.x.x.x -p6000</span><br></pre></td></tr></table></figure>
+
+<p>效果：使用vscode中的ssh远程连接、端口转发</p>
+<p><img src="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230703174447.png" alt="20230703174447"></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2023/01/08/%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F/" data-id="cljypwplq0009mcq0ajhw4ofm" data-title="通过内网穿透配置远程开发环境" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/FRP/" rel="tag">FRP</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Tips/" rel="tag">Tips</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%8A%80%E5%B7%A7/" rel="tag">技巧</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" rel="tag">计算机网络</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Tips/">Tips</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/UEFI/">UEFI</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/">样本分析</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Bootkit/" rel="tag">Bootkit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/FRP/" rel="tag">FRP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Gigabyte/" rel="tag">Gigabyte</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Github-Action/" rel="tag">Github Action</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Github-Page/" rel="tag">Github Page</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tips/" rel="tag">Tips</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UEFI/" rel="tag">UEFI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo/" rel="tag">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9B%BA%E4%BB%B6%E7%97%85%E6%AF%92/" rel="tag">固件病毒</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AE%89%E8%A3%85%E6%95%99%E7%A8%8B/" rel="tag">安装教程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%8A%80%E5%B7%A7/" rel="tag">技巧</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%96%87%E4%BB%B6%E8%AF%BB%E5%86%99/" rel="tag">文件读写</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BC%8F%E6%B4%9E/" rel="tag">漏洞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" rel="tag">计算机网络</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Bootkit/" style="font-size: 10px;">Bootkit</a> <a href="/tags/FRP/" style="font-size: 10px;">FRP</a> <a href="/tags/Gigabyte/" style="font-size: 10px;">Gigabyte</a> <a href="/tags/Github-Action/" style="font-size: 10px;">Github Action</a> <a href="/tags/Github-Page/" style="font-size: 10px;">Github Page</a> <a href="/tags/Tips/" style="font-size: 15px;">Tips</a> <a href="/tags/UEFI/" style="font-size: 20px;">UEFI</a> <a href="/tags/hexo/" style="font-size: 10px;">hexo</a> <a href="/tags/%E5%9B%BA%E4%BB%B6%E7%97%85%E6%AF%92/" style="font-size: 10px;">固件病毒</a> <a href="/tags/%E5%AE%89%E8%A3%85%E6%95%99%E7%A8%8B/" style="font-size: 10px;">安装教程</a> <a href="/tags/%E6%8A%80%E5%B7%A7/" style="font-size: 15px;">技巧</a> <a href="/tags/%E6%96%87%E4%BB%B6%E8%AF%BB%E5%86%99/" style="font-size: 10px;">文件读写</a> <a href="/tags/%E6%BC%8F%E6%B4%9E/" style="font-size: 10px;">漏洞</a> <a href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" style="font-size: 10px;">计算机网络</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/07/">July 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">June 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">April 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">January 2023</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2023/07/11/hexo-action-deploy/">【Action + Page】Github自动搭建并部署hexo博客</a>
+          </li>
+        
+          <li>
+            <a href="/2023/06/19/Lojax/">Lojax Bootkit病毒样本分析</a>
+          </li>
+        
+          <li>
+            <a href="/2023/06/08/%E6%8A%80%E5%98%89UEFI%E5%90%8E%E9%97%A8%E6%BC%8F%E6%B4%9E/">技嘉UEFI BIOS固件中的后门漏洞分析</a>
+          </li>
+        
+          <li>
+            <a href="/2023/04/16/UEFI%E5%B1%82%E5%AE%9E%E7%8E%B0FAT%E5%88%86%E5%8C%BA%E5%86%99%E5%85%A5/">UEFI层实现FAT分区写入</a>
+          </li>
+        
+          <li>
+            <a href="/2023/04/15/WSL2%E4%BD%BF%E7%94%A8%E5%AE%BF%E4%B8%BB%E6%9C%BA%E4%BB%A3%E7%90%86/">在WSL2中使用宿主机代理</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2023 John Doe<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

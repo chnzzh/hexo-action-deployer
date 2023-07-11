@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>技嘉UEFI BIOS固件中的后门漏洞分析 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="关于技嘉UEFI BIOS后门漏洞的调研">
+<meta property="og:type" content="article">
+<meta property="og:title" content="技嘉UEFI BIOS固件中的后门漏洞分析">
+<meta property="og:url" content="http://example.com/2023/06/08/%E6%8A%80%E5%98%89UEFI%E5%90%8E%E9%97%A8%E6%BC%8F%E6%B4%9E/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="关于技嘉UEFI BIOS后门漏洞的调研">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230606224909.png">
+<meta property="og:image" content="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230606225056.png">
+<meta property="og:image" content="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230606232531.png">
+<meta property="og:image" content="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230607142040.png">
+<meta property="og:image" content="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230607142152.png">
+<meta property="og:image" content="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230607180316.png">
+<meta property="og:image" content="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230607175009.png">
+<meta property="og:image" content="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230607175541.png">
+<meta property="og:image" content="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230608144219.png">
+<meta property="article:published_time" content="2023-06-08T14:43:00.000Z">
+<meta property="article:modified_time" content="2023-07-11T20:01:03.135Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="UEFI">
+<meta property="article:tag" content="漏洞">
+<meta property="article:tag" content="Gigabyte">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230606224909.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS Feed"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="Search"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-技嘉UEFI后门漏洞" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2023/06/08/%E6%8A%80%E5%98%89UEFI%E5%90%8E%E9%97%A8%E6%BC%8F%E6%B4%9E/" class="article-date">
+  <time class="dt-published" datetime="2023-06-08T14:43:00.000Z" itemprop="datePublished">2023-06-08</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/">样本分析</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      技嘉UEFI BIOS固件中的后门漏洞分析
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="相关链接"><a href="#相关链接" class="headerlink" title="相关链接"></a>相关链接</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://eclypsium.com/blog/supply-chain-risk-from-gigabyte-app-center-backdoor/">eclypsium官方报告</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.gigabyte.com/Press/News/2091">技嘉官方安全公告</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.gigabyte.com/Press/News/2091">eclypsium提供的受影响型号</a></li>
+</ul>
+<h2 id="受影响型号"><a href="#受影响型号" class="headerlink" title="受影响型号"></a>受影响型号</h2><p>第一批修复</p>
+<p>Intel 700&#x2F;600<br>AMD 500&#x2F;400</p>
+<p>第二批修复<br>Intel 500&#x2F;400<br>AMD 600</p>
+<h2 id="样本比对"><a href="#样本比对" class="headerlink" title="样本比对"></a>样本比对</h2><p>z790 未上传</p>
+<p><img src="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230606224909.png" alt="20230606224909"></p>
+<p>b760  已上传</p>
+<p><img src="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230606225056.png" alt="20230606225056"></p>
+<p>选取b760的两个版本固件作为分析对象，标记为F1和F2</p>
+<p>根据eclypsium提供的信息，获得UEFI固件中相关可执行程序：<br>GUID：AEB1671D-019C-4B3B-BA-00-35-A2-E6-28-04-36<br>提取出一个二进制efi文件，标记为</p>
+<p>F1_Section_PE32_image_AEB1671D-019C-4B3B-BA00-35A2E6280436_body.efi<br>F2_Section_PE32_image_AEB1671D-019C-4B3B-BA00-35A2E6280436_body.efi</p>
+<h3 id="EFI文件分析"><a href="#EFI文件分析" class="headerlink" title="EFI文件分析"></a>EFI文件分析</h3><p>先使用NtCreateFile函数尝试创建一个文件，第三个参数ObjectAttributes指明了位置：</p>
+<p>使用ida pro比对两个版本之间差异，发现只存在一处不同：</p>
+<p><img src="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230606232531.png" alt="20230606232531"></p>
+<p>该函数是一个写文件的函数，不同位置为写入缓冲区的大小（以字节为单位）。</p>
+<p>F1：<br>数据长度：0x1208F8u</p>
+<p>F2<br>数据长度：0x120AF8u, 1182456</p>
+<p>找到对应写入文件的指针，提取出该文件，标记为</p>
+<p>F1_payload.bin<br>F2_payload.bin</p>
+<h3 id="Payload沙盒测试"><a href="#Payload沙盒测试" class="headerlink" title="Payload沙盒测试"></a>Payload沙盒测试</h3><p>运行释放的可执行文件F1_payload</p>
+<p><img src="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230607142040.png" alt="20230607142040"></p>
+<p>服务管理器中出现GigabyteUpdateService</p>
+<p><img src="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230607142152.png" alt="20230607142152"></p>
+<h3 id="Payload静态分析"><a href="#Payload静态分析" class="headerlink" title="Payload静态分析"></a>Payload静态分析</h3><p>使用bindiff比对F1_payload.bin、F2_payload.bin，并未发现不同</p>
+<p>使用binwalk在文件中查询PE头，发现在payload.exe中还存在第二个PE可执行文件，提取出该文件，标记为</p>
+<p>F1_MZ2.bin<br>F2_MZ2.bin</p>
+<h3 id="第二个PE文件分析"><a href="#第二个PE文件分析" class="headerlink" title="第二个PE文件分析"></a>第二个PE文件分析</h3><p>该文件是一个.NET编写的程序</p>
+<h4 id="Bindiff"><a href="#Bindiff" class="headerlink" title="Bindiff"></a>Bindiff</h4><p><img src="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230607180316.png" alt="20230607180316"></p>
+<h4 id="反编译分析"><a href="#反编译分析" class="headerlink" title="反编译分析"></a>反编译分析</h4><p>反编译工具：dotPeek</p>
+<h5 id="AppLiveUpdateWebPath"><a href="#AppLiveUpdateWebPath" class="headerlink" title="AppLiveUpdateWebPath"></a>AppLiveUpdateWebPath</h5><p>\Utilities\AppLiveUpdate\AppLiveUpdateWebPath.cs</p>
+<p><img src="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230607175009.png" alt="20230607175009"></p>
+<p>删除了更新源Software-nas&#x2F;Swhttp&#x2F;LiveUpdate4，保留 mb.download.gigabyte.com&#x2F;FileList&#x2F;Swhttp&#x2F;LiveUpdate4</p>
+<h5 id="UtilityUserControlsDownloadAndInstallBox"><a href="#UtilityUserControlsDownloadAndInstallBox" class="headerlink" title="UtilityUserControlsDownloadAndInstallBox"></a>UtilityUserControlsDownloadAndInstallBox</h5><p>\UtilityUserControlsDownloadAndInstallBox.xaml.cs</p>
+<p><img src="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230607175541.png" alt="20230607175541"></p>
+<p>添加了安全校验库，之前可能未作安全校验</p>
+<p><img src="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230608144219.png" alt="20230608144219"></p>
+<p>增加了安装前验证，未通过则抛出异常</p>
+<h4 id="URL说明"><a href="#URL说明" class="headerlink" title="URL说明"></a>URL说明</h4><p>url格式为 <code>&#123;0&#125;://&#123;1&#125;/&#123;2&#125;/&#123;3&#125;</code>，如:<br><a target="_blank" rel="noopener" href="https://mb.download.gigabyte.com/FileList/Swhttp/LiveUpdate4/AppCenter/verInfo.ini">https://mb.download.gigabyte.com/FileList/Swhttp/LiveUpdate4/AppCenter/verInfo.ini</a></p>
+<ul>
+<li>{0}：<ul>
+<li>http</li>
+<li>https，默认状态下设置为https</li>
+</ul>
+</li>
+<li>{1}: ToUrl:<ul>
+<li>mb.download.gigabyte.com&#x2F;FileList&#x2F;Swhttp&#x2F;LiveUpdate4</li>
+<li>Software-nas&#x2F;Swhttp&#x2F;LiveUpdate4</li>
+</ul>
+</li>
+<li>{2}: folderName：<ul>
+<li>AppCenter</li>
+<li>webappcenter</li>
+<li>GCC</li>
+</ul>
+</li>
+<li>{3}: 文件名称<ul>
+<li>UpdPack.exe</li>
+<li>verInfo.ini</li>
+<li>setup.exe</li>
+<li>setup.iss</li>
+</ul>
+</li>
+</ul>
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>可以确定，未修复的版本中存在两个弱点：</p>
+<ol>
+<li>InternalUrl(Software-nas&#x2F;Swhttp&#x2F;LiveUpdate4)：实际情况下无法发起攻击</li>
+<li>下载文件未作校验：可被中间人攻击并释放可执行文件</li>
+</ol>
+<p>厂商借助WPBT功能，从固件层面向用户的操作系统内释放网络下载器，具有潜在的安全风险。<br>如果不能保证下载来源的可靠性，或者通过中间人替换下载来源，则很容易造成漏洞利用。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2023/06/08/%E6%8A%80%E5%98%89UEFI%E5%90%8E%E9%97%A8%E6%BC%8F%E6%B4%9E/" data-id="cljypwplr000amcq0e374hzm5" data-title="技嘉UEFI BIOS固件中的后门漏洞分析" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Gigabyte/" rel="tag">Gigabyte</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/UEFI/" rel="tag">UEFI</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%BC%8F%E6%B4%9E/" rel="tag">漏洞</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2023/06/19/Lojax/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Lojax Bootkit病毒样本分析
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2023/04/16/UEFI%E5%B1%82%E5%AE%9E%E7%8E%B0FAT%E5%88%86%E5%8C%BA%E5%86%99%E5%85%A5/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">UEFI层实现FAT分区写入</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Tips/">Tips</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/UEFI/">UEFI</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/">样本分析</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Bootkit/" rel="tag">Bootkit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/FRP/" rel="tag">FRP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Gigabyte/" rel="tag">Gigabyte</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Github-Action/" rel="tag">Github Action</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Github-Page/" rel="tag">Github Page</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tips/" rel="tag">Tips</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UEFI/" rel="tag">UEFI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo/" rel="tag">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9B%BA%E4%BB%B6%E7%97%85%E6%AF%92/" rel="tag">固件病毒</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AE%89%E8%A3%85%E6%95%99%E7%A8%8B/" rel="tag">安装教程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%8A%80%E5%B7%A7/" rel="tag">技巧</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%96%87%E4%BB%B6%E8%AF%BB%E5%86%99/" rel="tag">文件读写</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BC%8F%E6%B4%9E/" rel="tag">漏洞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" rel="tag">计算机网络</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Bootkit/" style="font-size: 10px;">Bootkit</a> <a href="/tags/FRP/" style="font-size: 10px;">FRP</a> <a href="/tags/Gigabyte/" style="font-size: 10px;">Gigabyte</a> <a href="/tags/Github-Action/" style="font-size: 10px;">Github Action</a> <a href="/tags/Github-Page/" style="font-size: 10px;">Github Page</a> <a href="/tags/Tips/" style="font-size: 15px;">Tips</a> <a href="/tags/UEFI/" style="font-size: 20px;">UEFI</a> <a href="/tags/hexo/" style="font-size: 10px;">hexo</a> <a href="/tags/%E5%9B%BA%E4%BB%B6%E7%97%85%E6%AF%92/" style="font-size: 10px;">固件病毒</a> <a href="/tags/%E5%AE%89%E8%A3%85%E6%95%99%E7%A8%8B/" style="font-size: 10px;">安装教程</a> <a href="/tags/%E6%8A%80%E5%B7%A7/" style="font-size: 15px;">技巧</a> <a href="/tags/%E6%96%87%E4%BB%B6%E8%AF%BB%E5%86%99/" style="font-size: 10px;">文件读写</a> <a href="/tags/%E6%BC%8F%E6%B4%9E/" style="font-size: 10px;">漏洞</a> <a href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" style="font-size: 10px;">计算机网络</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/07/">July 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">June 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">April 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">January 2023</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2023/07/11/hexo-action-deploy/">【Action + Page】Github自动搭建并部署hexo博客</a>
+          </li>
+        
+          <li>
+            <a href="/2023/06/19/Lojax/">Lojax Bootkit病毒样本分析</a>
+          </li>
+        
+          <li>
+            <a href="/2023/06/08/%E6%8A%80%E5%98%89UEFI%E5%90%8E%E9%97%A8%E6%BC%8F%E6%B4%9E/">技嘉UEFI BIOS固件中的后门漏洞分析</a>
+          </li>
+        
+          <li>
+            <a href="/2023/04/16/UEFI%E5%B1%82%E5%AE%9E%E7%8E%B0FAT%E5%88%86%E5%8C%BA%E5%86%99%E5%85%A5/">UEFI层实现FAT分区写入</a>
+          </li>
+        
+          <li>
+            <a href="/2023/04/15/WSL2%E4%BD%BF%E7%94%A8%E5%AE%BF%E4%B8%BB%E6%9C%BA%E4%BB%A3%E7%90%86/">在WSL2中使用宿主机代理</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2023 John Doe<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>
