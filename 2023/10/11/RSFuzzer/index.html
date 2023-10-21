@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>【文献笔记】RSFUZZER: Discovering Deep SMI Handler Vulnerabilities in UEFI Firmware with Hybrid Fuzzing | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="UEFI漏洞挖掘：SMM程序的Fuzzing">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【文献笔记】RSFUZZER: Discovering Deep SMI Handler Vulnerabilities in UEFI Firmware with Hybrid Fuzzing">
+<meta property="og:url" content="http://example.com/2023/10/11/RSFuzzer/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="UEFI漏洞挖掘：SMM程序的Fuzzing">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com//vscode/20230827164743.png">
+<meta property="og:image" content="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com//vscode/20230827171255.png">
+<meta property="og:image" content="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com//vscode/20230827221729.png">
+<meta property="og:image" content="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com//vscode/20230827222649.png">
+<meta property="og:image" content="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230828142902.png">
+<meta property="article:published_time" content="2023-10-11T00:00:00.000Z">
+<meta property="article:modified_time" content="2023-10-21T20:00:40.808Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="UEFI">
+<meta property="article:tag" content="漏洞">
+<meta property="article:tag" content="Fuzzing">
+<meta property="article:tag" content="文献笔记">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com//vscode/20230827164743.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS Feed"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="Search"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-RSFuzzer" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2023/10/11/RSFuzzer/" class="article-date">
+  <time class="dt-published" datetime="2023-10-11T00:00:00.000Z" itemprop="datePublished">2023-10-11</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%96%87%E7%8C%AE%E7%AC%94%E8%AE%B0/">文献笔记</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      【文献笔记】RSFUZZER: Discovering Deep SMI Handler Vulnerabilities in UEFI Firmware with Hybrid Fuzzing
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="0x0-Meta"><a href="#0x0-Meta" class="headerlink" title="0x0 Meta"></a>0x0 Meta</h2><ul>
+<li>文章名称：RSFUZZER: Discovering Deep SMI Handler Vulnerabilities in UEFI Firmware with Hybrid Fuzzing</li>
+<li>发表期刊：IEEE 2023 S&amp;P</li>
+<li>作者机构：中科院信工所</li>
+</ul>
+<h2 id="0x1-pre-knowledge"><a href="#0x1-pre-knowledge" class="headerlink" title="0x1 pre-knowledge"></a>0x1 pre-knowledge</h2><h3 id="0x10-SMM"><a href="#0x10-SMM" class="headerlink" title="0x10 SMM"></a>0x10 SMM</h3><p>SMM, System Management Mode, 即系统管理模式。在intel 386SL, intel486SL引入的一种特殊的操作模式，在这种模式下，可以执行高级电源管理，硬件控制和运行OEM代码。它对于操作系统而言是完全透明的，也就是说操作系统并不知道CPU什么时候会进入和退出SMM。</p>
+<p>SMM的基本机制是在内存中创建专用与SMM驱动程序的空间，以此将SMM驱动程序的执行环境和用户空间及内核空间隔离。<br>通过这种方式，即使内核被完全破坏，SMM也可以保护计算机。<br>但是，由于SMM运行在高特权级，SMM漏洞所导致的后果则更为严重。例如，利用SMI处理程序中的漏洞会导致UEFI Bootkit安装。</p>
+<h3 id="0x11-模糊测试"><a href="#0x11-模糊测试" class="headerlink" title="0x11 模糊测试"></a>0x11 模糊测试</h3><p>黑盒测试：传统模糊测试方法，面向可执行文件，只对输入进行处理，不对目标程序本身进行处理<br>灰盒测试：对目标程序本身做处理，例如通过在目标程序内部进行插桩，在执行时获取代码覆盖率，从而利用覆盖率来引导输入的变异方法。<br>白盒测试：只关注内部逻辑，用程序内部的逻辑结构、有关信息，设计或选择测试用例，对程序所有逻辑路径展开测试。在不同的点检查程序状态，确定实际状态，是否与预期的状态一致。</p>
+<p>混合灰盒模糊：引入符号（symbolic）或集合（concolic）执行。</p>
+<h2 id="0x2-全文详解"><a href="#0x2-全文详解" class="headerlink" title="0x2 全文详解"></a>0x2 全文详解</h2><h3 id="0x20-Abstract"><a href="#0x20-Abstract" class="headerlink" title="0x20 Abstract"></a>0x20 Abstract</h3><p>SMM是由UEFI支持的x86处理器的安全操作模式，旨在提供安全的执行环境。<br>SMM模式下运行的程序是SMM驱动程序，其中，SMI（System Management Interrupt）handler是重要组件，因为SMM仅通过该组件与外部数据进行接收与处理。</p>
+<p>对于SMI handler，研究人员建议使用混合模糊测试（hybrid fuyzzing）来检测漏洞，如Intel开发的Excite fuzzer。<br>现有的混合模糊测试方法面临两个挑战：</p>
+<ol>
+<li>只能通过最常见的输入接口提供输入，不能使用其他接口</li>
+<li>不能知道哪些变量被SMI处理程序共享，缺乏探索与这些变量相关的代码段的能力。</li>
+</ol>
+<p>因此，作者提出了RSFuzzer，一种混合灰盒模糊测试技术，相较于现有技术，RSFUZZER平均能够覆盖更多的基本块，覆盖率高出617%；并且能够检测到更多的漏洞，检测率高出828%。此外，作者在评估的UEFI固件映像中，发现并报告了65个0-day漏洞，其中14个漏洞获得了CVE编号。值得注意的是，这些0-day漏洞中有6个是在Intel的商业产品中发现的，而这些产品可能在发布之前经过了Intel官方混合模糊测试工具Excite的测试。</p>
+<h3 id="0x21-Introduction"><a href="#0x21-Introduction" class="headerlink" title="0x21 Introduction"></a>0x21 Introduction</h3><p>相关工作问题：</p>
+<p>Excite：经处理单维空间（即内核空间程序和SMI处理程序之间的通信缓冲区），忽略了SMI处理程序可能从硬编码的内存地址读取输入的情况。<br>Syzgen：SMI处理程序中的大多数漏洞都是无声的损坏，而不是崩溃，这使得模糊器很难检测到。</p>
+<p>本文的贡献</p>
+<ol>
+<li>提出了一种称为RSFUZZER的混合灰盒模糊测试技术，可以识别SMI处理程序输入接口，恢复输入格式并执行单处理和交叉处理模糊测试（检测跨处理程序漏洞）</li>
+<li>在来自六家供应商的16个UEFI固件映像上进行评估。结果表明，RSFUZZER可以揭示SMI处理程序中隐藏很深的漏洞，并且优于最先进的模糊器。</li>
+<li>检测到65个0day漏洞。到目前为止，其中33个已经被供应商确认，20个已经确定。另外，已经分配了14个CVE id。</li>
+<li>计划不久后开源RSFuzzer。</li>
+</ol>
+<h3 id="0x22-Background"><a href="#0x22-Background" class="headerlink" title="0x22 Background"></a>0x22 Background</h3><p>在UEFI启动过程中，SMM会从固件加载到SMRAM中，一旦启动完成，SMRAM会被锁定，只有SMM驱动程序可读写。<br>为了允许SMM驱动程序访问和操作安全关键数据和硬件，SMM驱动被授予ring -2权限。</p>
+<blockquote>
+<p>注意是负二不是杠二，所以权限甚至比内核级（ring 0）更高。</p>
+</blockquote>
+<p>一个SMM驱动包含三个组件：</p>
+<ol>
+<li>一组协议protocols</li>
+<li>一组处理程序handlers<ul>
+<li>一个SMI handler代表一个RT服务，每个服务分配一个SMI号。</li>
+<li>SMI handler使用CommBuffer来接受来自内核空间程序的数据</li>
+</ul>
+</li>
+<li>一个初始化函数，用于启动时注册所有协议和SMI handlers，启动后这些都被存放到SMRAM中。</li>
+</ol>
+<p>SMM可以通过向SMI发送信令来调用，SMI可以由硬件和软件生成。<br>当内核空间程序需要进入SMM时，它首先需要准备CommBuffer的内容，需要指定SMI号来调用某个SMI处理程序。<br>然后，内核空间程序可以向处理器发送SMI信号。当处理器接收到SMI信号时，它将暂停内核和用户空间程序的正常执行，并开始执行相应的SMI处理程序。<br>在执行相应的SMI处理程序之前，在SMRAM中恢复处理器状态。从系统管理模式(RSM)恢复指令将处理器恢复到SMM中断之前的状态。</p>
+<p>本文假设对手有ring 0特权但没有ring -2特权，即攻击者能够修改物理内存，但不能修改SMRAM内存。因此，本文目标是检测SMI handler的漏洞，输入为CommBuffer</p>
+<h3 id="0x23-运行示例"><a href="#0x23-运行示例" class="headerlink" title="0x23 运行示例"></a>0x23 运行示例</h3><p><img src="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com//vscode/20230827164743.png" alt="20230827164743"></p>
+<p>如上图展示了任意写入漏洞的代码片段，通过这个片段来介绍挑战C1-C5。</p>
+<ul>
+<li>C1：一些SMI处理程序需要从多个输入接口接收测试输入（Handler1有两个输入接口：Commbuffer和硬编码内存地址0x40E）</li>
+<li>C2：SMI处理程序的测试输入需要具有某些格式（buffer变量需要特定格式才能使Handler解析成功）</li>
+<li>C3：触发某些漏洞需要多个SMI处理程序的参与。由于签名和缓冲区在多个SMI处理程序中使用，因此我们将它们称为跨处理程序变量（Cross-handler Variables）（想要到达18行触发漏洞，需要先调用Handler1和Handler2对某些变量进行初始化）</li>
+<li>C4：一些漏洞由路径约束进行保护（如果signature变量不为特定值，不会进入18行）</li>
+<li>C5：一些漏洞只是无声的损坏，不会使SMI处理程序崩溃（SMI处理程序具有访问任何内存位置的ring -2特权，因此，无论如何调整buffer的值，Handler3都不会在第18行崩溃，因此不会被只检测奔溃的fuzzer检测到）</li>
+</ul>
+<h3 id="0x24-方法"><a href="#0x24-方法" class="headerlink" title="0x24 方法"></a>0x24 方法</h3><p><img src="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com//vscode/20230827171255.png" alt="20230827171255"></p>
+<p>如上图为RSFuzzer的整体结构，输入为SMI handler，输出为PoC，包含两个模式：单handler模糊测试和跨handler模糊测试。</p>
+<h4 id="单handler"><a href="#单handler" class="headerlink" title="单handler"></a>单handler</h4><p>单handler模糊测试模式下，RSFuzzer选择一个SMI handler并从种子池选取种子进行测试。初始种子池随机生成，如果一个测试用例增加了基本块覆盖，则添加到种子池，并进行输入知识提取（input knowledge extraction）；如果触发了奔溃，则报告PoC。</p>
+<p>输入知识提取是指将输入相关的变量符号化，其他变量具体化。首先根据预定义规则识别SMI输入接口，然后通过输入的符号表示推断输入结构。这样做的目的是促进结构感知的测试用例生成。</p>
+<p>在单handler模糊测试执行时，RSFuzzer还会记录SMI的变量处理行为并识别跨handler变量。</p>
+<h4 id="跨handler"><a href="#跨handler" class="headerlink" title="跨handler"></a>跨handler</h4><p>FSFUuzzer首先选择一个跨处理程序变量，然后根据它们的生产者-消费者依赖关系获取与该变量相关的SMI处理程序队列。<br>然后，RSFUZZER基于来自每个SMI处理程序的相应种子池的种子生成测试用例，并使用相应的测试用例执行SMI处理程序队列。</p>
+<p>当在给定的时间限制（5min）内找不到新的基本块时，RSFuzzer从单处理程序模糊测试模式切换到跨handler模糊测试模式。若发现新种子时，则会再次切换到单handler模式。</p>
+<h4 id="输入接口识别"><a href="#输入接口识别" class="headerlink" title="输入接口识别"></a>输入接口识别</h4><p>根据UEFI规范，CommBuffer始终是SMI处理程序的第三个参数。因此，不需要识别CommBuffer的实际内存地址。相反，可以分配一个新的内存区域，将测试数据存储在其中，并在模糊测试期间替换SMI处理程序的第三个参数。另外，物理内存低1MB也可被视为输入。</p>
+<h4 id="输入格式推断"><a href="#输入格式推断" class="headerlink" title="输入格式推断"></a>输入格式推断</h4><p>数据类型：指针和基本算数类型，启发式识别。</p>
+<p>嵌套结构：提出一种递归恢复的方法。</p>
+<p><img src="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com//vscode/20230827221729.png" alt="20230827221729"></p>
+<p>判断数据类型示例如上</p>
+<h4 id="测试用例生成"><a href="#测试用例生成" class="headerlink" title="测试用例生成"></a>测试用例生成</h4><p>结合基于生成的方法和基于突变的方法</p>
+<h5 id="基于结构的种子生成"><a href="#基于结构的种子生成" class="headerlink" title="基于结构的种子生成"></a>基于结构的种子生成</h5><p>根据知识提取阶段获得的输入结构知识，构造相应的种子并分配内存。若没有分配结构或分配不足，则根据sym_ptr分配。对于多个输入接口的handler，为每个接口生成一个单独的种子输入。</p>
+<h5 id="基于约束的测试用例突变"><a href="#基于约束的测试用例突变" class="headerlink" title="基于约束的测试用例突变"></a>基于约束的测试用例突变</h5><p><img src="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com//vscode/20230827222649.png" alt="20230827222649"></p>
+<p>在concolic执行过程中发现变量与转移关系，并使用SMT求解器来找到合适输入，传递输入以至发现PoC。</p>
+<h5 id="基于污点的测试用例突变策略"><a href="#基于污点的测试用例突变策略" class="headerlink" title="基于污点的测试用例突变策略"></a>基于污点的测试用例突变策略</h5><p>由于SMI处理程序拥有ring-2级权限，对内存的污染很可能不会导致崩溃。为了解决这个问题，RSFUZZER在执行混合符号执行之前，分配了一块不可读、不可写、不可执行的Red Zone内存。<br>在混合符号执行过程中，RSFUZZER会标记所有用户可控的内存指令为危险指令，并通过变异潜在的危险指令，使其指向Red Zone内存，从而触发崩溃。</p>
+<h4 id="跨handler知识抽取"><a href="#跨handler知识抽取" class="headerlink" title="跨handler知识抽取"></a>跨handler知识抽取</h4><p>RSFuzzer通过分析SMI handler的变量行为，确定生产者和消费者。</p>
+<p>根据跨handler的三个特征：</p>
+<ol>
+<li>总是访问相同的内存位置</li>
+<li>至少一个代码段可以写入内存位置</li>
+<li>跨handler变量在SMI handler中可以是活动的</li>
+</ol>
+<h4 id="SMI-handler调度"><a href="#SMI-handler调度" class="headerlink" title="SMI handler调度"></a>SMI handler调度</h4><p>根据生产者-消费者的依赖关系指导SMI程序调度，首先执行产生跨handler变量的SMI handler，然后再以随机顺序执行消费者handler。</p>
+<h3 id="0x25-实施"><a href="#0x25-实施" class="headerlink" title="0x25 实施"></a>0x25 实施</h3><p>结合Qiling和Triton，灰盒模糊测试建立在AFL++上，仅实现部分仿真，即与目标SMI处理程序相关驱动程序的部分模拟。</p>
+<h3 id="0x26-评估"><a href="#0x26-评估" class="headerlink" title="0x26 评估"></a>0x26 评估</h3><p>Baseline：Syzgen、SPENDER。Syzgen用来检测Macos中的闭源驱动，SPENDER是一个静态框架，用于检测SMI handler中的特定污点样式漏洞。</p>
+<p>评估标准：漏洞发现和代码覆盖</p>
+<p>实验设置：对于每个UEFI镜像，重复10次实验，每次24h，使用p-value来衡量显著性</p>
+<p>作者在选取的数据集的UEFI固件镜像上运行RSFUZZER，以发现新的漏洞。对于所有测试的固件，RSFUZZER能够自动识别SMI处理程序的输入通道，并将模糊测试生成的输入数据提供给分析的SMI处理程序。总体而言，RSFUZZER发现了65个新漏洞，其中20个得到了相应供应商的确认。其中14个已被分配CVE号并由供应商修复。</p>
+<p><img src="https://piczzh-1301669099.cos.ap-beijing.myqcloud.com/vscode/20230828142902.png" alt="20230828142902"></p>
+<p>作者还提到了知识感知的重要性。使用知识感知的模糊测试比非知识感知多发现983%的漏洞（65：6）</p>
+<h3 id="0x27-讨论"><a href="#0x27-讨论" class="headerlink" title="0x27 讨论"></a>0x27 讨论</h3><ol>
+<li>模拟器的开销和缓慢的性能。知识提取较为耗时，因为要结合符号执行和仿真</li>
+<li>一些漏洞需要进一步研究：信息泄露漏洞和访问控制不当漏洞</li>
+</ol>
+<h3 id="0x28-结论"><a href="#0x28-结论" class="headerlink" title="0x28 结论"></a>0x28 结论</h3><p>作者确定了模糊SMI处理程序的五个关键挑战。<br>通过解决这些挑战，我们提出了RSFUZZER，一种新的混合灰盒模糊测试框架来检测SMI处理程序漏洞。<br>RSFUZZER是第一个可以检测跨处理程序漏洞的模糊测试技术。<br>评估表明，RSFUZZER可以有效地发现COTS UEFI固件映像中的漏洞。<br>RSFUZZER发现了65个以前未知的SMI处理程序漏洞，我们已经向相应的供应商报告了这些漏洞。<br>到目前为止，其中33个已经被供应商确认，20个已经确定。另外，已经分配了14个CVE id。<br>最后，评估还表明，RSFUZZER在代码覆盖和漏洞检测方面都明显优于最先进的输入推理混合模糊器。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2023/10/11/RSFuzzer/" data-id="clo0gt52l0001npox4a7d1net" data-title="【文献笔记】RSFUZZER: Discovering Deep SMI Handler Vulnerabilities in UEFI Firmware with Hybrid Fuzzing" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Fuzzing/" rel="tag">Fuzzing</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/UEFI/" rel="tag">UEFI</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%96%87%E7%8C%AE%E7%AC%94%E8%AE%B0/" rel="tag">文献笔记</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%BC%8F%E6%B4%9E/" rel="tag">漏洞</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2023/08/26/music/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">AI翻唱分享</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/AIGC/">AIGC</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Tips/">Tips</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/UEFI/">UEFI</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%96%87%E7%8C%AE%E7%AC%94%E8%AE%B0/">文献笔记</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/">样本分析</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/AIGC/" rel="tag">AIGC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/AI%E7%BF%BB%E5%94%B1/" rel="tag">AI翻唱</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Bootkit/" rel="tag">Bootkit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/FRP/" rel="tag">FRP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fuzzing/" rel="tag">Fuzzing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Gigabyte/" rel="tag">Gigabyte</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Github-Action/" rel="tag">Github Action</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Github-Page/" rel="tag">Github Page</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tips/" rel="tag">Tips</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UEFI/" rel="tag">UEFI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo/" rel="tag">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%86%E4%BA%AB/" rel="tag">分享</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9B%BA%E4%BB%B6%E7%97%85%E6%AF%92/" rel="tag">固件病毒</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AE%89%E8%A3%85%E6%95%99%E7%A8%8B/" rel="tag">安装教程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%8A%80%E5%B7%A7/" rel="tag">技巧</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%96%87%E4%BB%B6%E8%AF%BB%E5%86%99/" rel="tag">文件读写</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%96%87%E7%8C%AE%E7%AC%94%E8%AE%B0/" rel="tag">文献笔记</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BC%8F%E6%B4%9E/" rel="tag">漏洞</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" rel="tag">计算机网络</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/AIGC/" style="font-size: 10px;">AIGC</a> <a href="/tags/AI%E7%BF%BB%E5%94%B1/" style="font-size: 10px;">AI翻唱</a> <a href="/tags/Bootkit/" style="font-size: 10px;">Bootkit</a> <a href="/tags/FRP/" style="font-size: 10px;">FRP</a> <a href="/tags/Fuzzing/" style="font-size: 10px;">Fuzzing</a> <a href="/tags/Gigabyte/" style="font-size: 10px;">Gigabyte</a> <a href="/tags/Github-Action/" style="font-size: 10px;">Github Action</a> <a href="/tags/Github-Page/" style="font-size: 10px;">Github Page</a> <a href="/tags/Tips/" style="font-size: 16.67px;">Tips</a> <a href="/tags/UEFI/" style="font-size: 20px;">UEFI</a> <a href="/tags/hexo/" style="font-size: 10px;">hexo</a> <a href="/tags/%E5%88%86%E4%BA%AB/" style="font-size: 10px;">分享</a> <a href="/tags/%E5%9B%BA%E4%BB%B6%E7%97%85%E6%AF%92/" style="font-size: 10px;">固件病毒</a> <a href="/tags/%E5%AE%89%E8%A3%85%E6%95%99%E7%A8%8B/" style="font-size: 10px;">安装教程</a> <a href="/tags/%E6%8A%80%E5%B7%A7/" style="font-size: 16.67px;">技巧</a> <a href="/tags/%E6%96%87%E4%BB%B6%E8%AF%BB%E5%86%99/" style="font-size: 10px;">文件读写</a> <a href="/tags/%E6%96%87%E7%8C%AE%E7%AC%94%E8%AE%B0/" style="font-size: 10px;">文献笔记</a> <a href="/tags/%E6%BC%8F%E6%B4%9E/" style="font-size: 13.33px;">漏洞</a> <a href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" style="font-size: 10px;">计算机网络</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/10/">October 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">August 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/07/">July 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">June 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">April 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">January 2023</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2023/10/11/RSFuzzer/">【文献笔记】RSFUZZER: Discovering Deep SMI Handler Vulnerabilities in UEFI Firmware with Hybrid Fuzzing</a>
+          </li>
+        
+          <li>
+            <a href="/2023/08/26/music/">AI翻唱分享</a>
+          </li>
+        
+          <li>
+            <a href="/2023/07/11/hexo-action-deploy/">【Action + Page】Github自动搭建并部署hexo博客</a>
+          </li>
+        
+          <li>
+            <a href="/2023/06/19/Lojax/">Lojax Bootkit病毒样本分析</a>
+          </li>
+        
+          <li>
+            <a href="/2023/06/08/%E6%8A%80%E5%98%89UEFI%E5%90%8E%E9%97%A8%E6%BC%8F%E6%B4%9E/">技嘉UEFI BIOS固件中的后门漏洞分析</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2023 John Doe<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>
